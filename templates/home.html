@@ -1,0 +1,161 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+
+    {% csrf_token %}
+    <h2>Principales ordenes:</h2>
+    <h4>
+        <strong>Comandos genéricos:</strong>
+        <ul>
+            <li>Ir a home.
+            <li>Abrir google o youtube.
+            <li>Buscar (palabra a buscar).
+            <li>Registrar (mascotas o solicitudes).
+            <li>Listar (mascotas o solicitudes):
+            <li>Subir vista.
+            <li>Bajar vista.
+            <li>Salir.
+        </ul>
+
+        <br><strong>Comandos exclusivos en las vistas de creación y Edición de registros:</strong>
+        <ul>
+            <li>Pregunta + (# pregunta).
+            <li>Cancelar.
+            <li>Guardar
+        </ul>
+        <br><strong>Comandos exclusivos en las vistas de consultas de registros:</strong>
+        <ul>
+            <li>Editar registro + (# registro).
+            <li>Eliminar registro + (# registro).
+        </ul>
+        <br><strong>Comandos exclusivos en la vista de eliminación de registros:</strong>
+        <ul>
+            <li>Aceptar.
+            <li>Cancelar.
+        </ul>
+
+    </h4>
+
+
+
+
+{% endblock %}
+
+{% block extrajs %}
+    <script>
+        startArtyom();
+
+        // Escribir lo que escucha.
+        artyom.redirectRecognizedTextOutput(function (text, isFinal) {
+            var texto = $('#exampleTextarea');
+            if (isFinal) {
+                //texto.val(text);
+            } else {
+                texto.val(text);
+            }
+        });
+
+        //inicializamos la libreria Artyom
+        function startArtyom() {
+            artyom.initialize({
+                lang: "es-ES",
+                continuous: true,// Reconoce 1 solo comando y para de escuchar
+                listen: true, // Iniciar !
+                debug: true, // Muestra un informe en la consola
+                speed: 1 // Habla normalmente
+            });
+
+        };
+
+        // Stop libreria;
+        function stopArtyom() {
+            artyom.fatality();// Detener cualquier instancia previa
+
+        };
+
+        //El sistema responde
+        artyom.addCommands([
+            {
+                indexes: ['abrir google', 'abrir facebook', 'abrir youtube'],
+                action: function (i) {
+                    if (i == 0) {
+                        artyom.say("Abriendo google");
+                        window.open("https://www.google.com/search?q=");
+                    }
+                    if (i == 1) {
+                        artyom.say("Abriendo facebook");
+                        window.open("http://www.facebook.com", '_blank');
+                    }
+                    if (i == 2) {
+                        artyom.say("Abriendo youtube");
+                        window.open("https://www.youtube.com", '_blank');
+                    }
+                }
+            },
+            {
+                smart: true,
+                indexes: ["buscar *"],
+                action: function (i, wildcard) {
+                    // Speak alterable value
+                    var str = "https://www.google.com/search?q=" + wildcard;
+                    window.open(str);
+                }
+            },
+            {
+                indexes: ['subir vista', 'bajar vista'],
+                action: function (i) {
+                    if (i == 0) {
+                        artyom.say("Subiendo");
+                        window.scrollBy(0, -100);
+                    }
+                    if (i == 1) {
+                        artyom.say("Bajando");
+                        window.scrollBy(0, 100);
+                    }
+                }
+            },
+            {
+                indexes: ['registrar mascota', 'registrar solicitud'],
+                action: function (i) {
+                    if (i == 0) {
+                        artyom.say("ok, abriendo formulario de mascotas", {
+                            onStart: function () {
+                                stopArtyom();
+                            },
+                            onEnd: function () {
+                                startArtyom();
+                            }
+                        });
+                        window.location.href = "{% url 'mascota:mascota_crear' %}";
+                    }
+                    if (i == 1) {
+                        artyom.say("Entendido, abriendo formulario de solicitud");
+                        window.location.href = "{% url 'adopcion:solicitud_crear' %}";
+                    }
+                }
+            },
+            {
+                indexes: ['listar mascotas', 'listar solicitudes'],
+                action: function (i) {
+                    if (i == 0) {
+                        artyom.say("listando mascotas");
+                        window.location.href = "{% url 'mascota:mascota_listar' %}";
+                    }
+                    if (i == 1) {
+                        artyom.say("listando solicitudes");
+                        window.location.href = "{% url 'adopcion:solicitud_listar' %}";
+                    }
+                }
+            },
+            {
+                indexes: ['salir', 'Salir'],
+                action: function () {
+                    artyom.say("Adios");
+                    window.location.href = "{% url 'logout' %}";
+                }
+            },
+
+        ]);
+
+    </script>
+{% endblock %}

@@ -1,0 +1,738 @@
+{% extends 'base/base.html' %}
+
+
+{% block content %}
+    <form method="post" name="formulario_mascota">
+        {% csrf_token %}
+
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <div class="form-group">
+                    <label for="{{ form.nombre.name }}">Pregunta 1: {{ form.nombre.label }}</label>
+                    {{ form.nombre }}
+                </div>
+            </div>
+            <div class="col-md-8 col-md-offset-2">
+                <div class="form-group">
+                    <label for="{{ form.sexo.name }}">Pregunta 2: {{ form.sexo.label }}</label>
+                    {{ form.sexo }}
+                </div>
+            </div>
+            <div class="col-md-8 col-md-offset-2">
+                <div class="form-group">
+                    <label for="{{ form.edad_aproximada.name }}">Pregunta 3: {{ form.edad_aproximada.label }}</label>
+                    {{ form.edad_aproximada }}
+                </div>
+            </div>
+            <div class="col-md-8 col-md-offset-2">
+                <div class="form-group">
+                    <label for="{{ form.fecha_rescate.name }}">Pregunta 4: {{ form.fecha_rescate.label }}</label>
+                    {{ form.fecha_rescate }}
+                </div>
+            </div>
+            <div class="col-md-8 col-md-offset-2">
+                <div class="form-group">
+                    <label for="{{ form.persona.name }}">Pregunta 5: {{ form.persona.label }}</label>
+                    {{ form.persona }}
+                </div>
+            </div>
+            <div class="col-md-8 col-md-offset-2">
+                <div class="form-group">
+                    <label for="{{ form.vacuna.name }}">Pregunta 6: {{ form.vacuna.label }}</label>
+                    {{ form.vacuna }}
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-md-8 col-md-offset-2">
+            <div class="form-group">
+                <button class="btn btn-primary" type="submit">Guardar</button>
+            </div>
+        </div>
+
+    </form>
+
+{% endblock %}
+
+
+{% block extrajs %}
+
+    <script>
+        var ask = 0;
+        var startAsk = true;
+        var isComan = false;
+        //startArtyom();
+        window.onload = function () {
+            startArtyom();
+
+        }
+
+
+        // Escribir lo que escucha.
+        artyom.redirectRecognizedTextOutput(function (text, isFinal) {
+            var texto = $('#exampleTextarea');
+            if (isFinal) {
+                texto.val(text);
+                if ((ask == 1) && !(text == "Cómo se llama la mascota") && !(text == "cancelar")) {
+                    document.getElementById("id_nombre").value = text;
+                    artyom.say("entendido", {
+                        onStart: function () {
+                            stopArtyom();
+                        },
+                        onEnd: function () {
+                            startArtyom();
+                        }
+                    });
+                    ask = 0;
+                    if (!isComan) {
+                        pregunta2();
+                    }
+                } else if ((ask == 2) && !(text == "cancelar")) {
+                    document.getElementById("id_sexo").value = text;
+                    artyom.say("entendido", {
+                        onStart: function () {
+                            stopArtyom();
+                        },
+                        onEnd: function () {
+                            startArtyom();
+                        }
+                    });
+                    ask = 0;
+                    if (!isComan) {
+                        pregunta3();
+                    }
+                } else if ((ask == 3) && !(text == "cancelar")) {
+                    document.getElementById("id_edad_aproximada").value = text;
+                    artyom.say("entendido", {
+                        onStart: function () {
+                            stopArtyom();
+                        },
+                        onEnd: function () {
+                            startArtyom();
+                        }
+                    });
+                    ask = 0;
+                    if (!isComan) {
+                        pregunta4();
+                    }
+                } else if ((ask == 4) && !(text == "cancelar")) {
+                    document.getElementById("id_fecha_rescate").value = text;
+                    artyom.say("entendido", {
+                        onStart: function () {
+                            stopArtyom();
+                        },
+                        onEnd: function () {
+                            startArtyom();
+                        }
+                    });
+                    ask = 0;
+                    if (!isComan) {
+                        pregunta5();
+                    }
+                } else if ((ask == 5) && !(text == "cancelar")) {
+
+                    var isChk = true;
+                    if (text == 'Andres rengifo') {
+                        document.getElementById("id_persona").selectedIndex = "1";
+                    } else if (text == 'Camilo Reyes') {
+                        document.getElementById("id_persona").selectedIndex = "2";
+                    } else if (text == 'Carlos López') {
+                        document.getElementById("id_persona").selectedIndex = "3";
+                    } else {
+                        isChk = false;
+                    }
+
+                    if (isChk) {
+                        artyom.say("entendido", {
+                            onStart: function () {
+                                stopArtyom();
+                            },
+                            onEnd: function () {
+                                startArtyom();
+                            }
+                        });
+                        if (!isComan) {
+                            pregunta6();
+                        }
+                        ask = 0;
+                    } else {
+                        ask = 5;
+                        artyom.say("La persona mencionada no registra", {
+                            onStart: function () {
+                                stopArtyom();
+                            },
+                            onEnd: function () {
+                                startArtyom();
+                            }
+                        });
+                    }
+
+                } else if ((ask == 6) && !(text == "cancelar")) {
+
+                    var ischeck = true;
+
+                    if (text == "vacuna 1") {
+                        document.getElementById("id_vacuna_0").checked = true;
+                    } else if (text == "vacuna 2" || text == "vacunados") {
+                        document.getElementById("id_vacuna_1").checked = true;
+                    } else if ((text == "vacuna 3") || (text = "vacuna tres")) {
+                        document.getElementById("id_vacuna_2").checked = true;
+                    } else if (text == "vacunas 1 y 2") {
+                        document.getElementById("id_vacuna_0").checked = true;
+                        document.getElementById("id_vacuna_1").checked = true;
+                    } else if (text == "vacunas 1 y 3") {
+                        document.getElementById("id_vacuna_0").checked = true;
+                        document.getElementById("id_vacuna_2").checked = true;
+                    } else if (text == "vacunas 2 y 3") {
+                        document.getElementById("id_vacuna_1").checked = true;
+                        document.getElementById("id_vacuna_2").checked = true;
+                    } else if (text == "todas") {
+                        document.getElementById("id_vacuna_0").checked = true;
+                        document.getElementById("id_vacuna_1").checked = true;
+                        document.getElementById("id_vacuna_2").checked = true;
+                    } else if (text == "ninguna") {
+                        document.getElementById("id_vacuna_0").checked = false;
+                        document.getElementById("id_vacuna_1").checked = false;
+                        document.getElementById("id_vacuna_2").checked = false;
+                    } else {
+                        ischeck = false;
+                    }
+
+                    if (ischeck) {
+                        artyom.say("entendido", {
+                            onStart: function () {
+                                stopArtyom();
+                            },
+                            onEnd: function () {
+                                startArtyom();
+                            }
+                        });
+                        ask = 0;
+                    } else {
+                        artyom.say("La opción dada no existe", {
+                            onStart: function () {
+                                stopArtyom();
+                            },
+                            onEnd: function () {
+                                startArtyom();
+                            }
+                        });
+                        ask = 6;
+                    }
+
+                }
+            }else{
+                texto.val(text);
+            }
+        })
+        ;
+
+        //inicializamos la libreria Artyom
+        function startArtyom() {
+            artyom.initialize({
+                lang: "es-ES",
+                continuous: true,// Reconoce 1 solo comando y para de escuchar
+                listen: true, // Iniciar !
+                debug: true, // Muestra un informe en la consola
+                speed: 1 // Habla normalmente
+            });
+
+            var txtNombre = document.getElementById("id_nombre");
+            var txtSexo = document.getElementById("id_sexo");
+
+            if (startAsk && document.getElementById("id_nombre").value.length == 0) {
+                pregunta1();
+                startAsk = false;
+            }
+        };
+
+        // Stop libreria;
+        function stopArtyom() {
+            artyom.fatality();// Detener cualquier instancia previa
+
+        };
+
+        //El sistema responde
+        artyom.addCommands([
+            {
+                indexes: ["Hola"],
+                action: function (i) {
+                    if (i == 0) {
+                        artyom.say("Cordial saludo, ¿Cómo puedo ayudarte?");
+                    }
+                }
+            },
+            {
+                indexes: ['me voy', 'chao'],
+                action: function () {
+                    alert('ok, chau');
+                }
+            },
+            {
+                indexes: ['abrir google', 'abrir facebook', 'abrir youtube'],
+                action: function (i) {
+                    if (i == 0) {
+                        artyom.say("Abriendo google");
+                        window.open("https://www.google.com/search?q=");
+                    }
+                    if (i == 1) {
+                        artyom.say("Abriendo facebook");
+                        window.open("http://www.facebook.com", '_blank');
+                    }
+                    if (i == 2) {
+                        artyom.say("Abriendo youtube");
+                        window.open("https://www.youtube.com", '_blank');
+                    }
+                }
+            },
+            {
+                smart: true,
+                indexes: ["buscar *"],
+                action: function (i, wildcard) {
+                    // Speak alterable value
+                    var str = "https://www.google.com/search?q=" + wildcard;
+                    window.open(str);
+                }
+            },
+            {
+                indexes: ['subir vista', 'bajar vista'],
+                action: function (i) {
+                    if (i == 0) {
+                        artyom.say("Subiendo");
+                        window.scrollBy(0, -200);
+                    }
+                    if (i == 1) {
+                        artyom.say("Bajando");
+                        window.scrollBy(0, 200);
+                    }
+                }
+            }, {
+                indexes: ['registrar mascota', 'registrar solicitud'],
+                action: function (i) {
+                    if (i == 0) {
+                        artyom.say("ok, abriendo formulario de mascotas");
+                        window.location.href = "{% url 'mascota:mascota_crear' %}";
+                    }
+                    if (i == 1) {
+                        artyom.say("Entendido, abriendo formulario de solicitud");
+                        window.location.href = "{% url 'adopcion:solicitud_crear' %}";
+                    }
+                }
+            },
+            {
+                indexes: ['listar mascotas', 'listar solicitudes'],
+                action: function (i) {
+                    if (i == 0) {
+                        artyom.say("listando mascotas");
+                        window.location.href = "{% url 'mascota:mascota_listar' %}";
+                    }
+                    if (i == 1) {
+                        artyom.say("listando solicitudes");
+                        window.location.href = "{% url 'adopcion:solicitud_listar' %}";
+                    }
+                }
+            },
+            {
+                indexes: ['pregunta 1'],
+                action: function (i) {
+                    if (i == 0) {
+                        /*artyom.dontObey();
+                        artyom.say("¿Cómo se llama la mascota?");
+                        ask = 1;
+                        artyom.obey();*/
+                        isComan = true;
+                        ask = 1;
+                        artyom.say("¿Cómo se llama la mascota?", {
+                            onStart: function () {
+                                stopArtyom();
+                            },
+                            onEnd: function () {
+                                startArtyom();
+                            }
+                        });
+
+
+                    }
+
+                }
+            },
+            {
+                indexes: ['pregunta 2', 'preguntados', 'pregunta dos', 'pregunta2'],
+                action: function (i) {
+                    if (i == 0) {
+                        isComan = true;
+                        ask = 2;
+                        artyom.say("¿Cuál es el sexo de la mascota?", {
+                            onStart: function () {
+                                artyom.dontObey()
+                            },
+                            onEnd: function () {
+                                artyom.obey();
+                            }
+                        });
+                    }
+                    if (i == 1) {
+                        isComan = true;
+                        ask = 2;
+                        artyom.say("¿Cuál es el sexo de la mascota?", {
+                            onStart: function () {
+                                artyom.dontObey()
+                            },
+                            onEnd: function () {
+                                artyom.obey();
+                            }
+                        });
+                    }
+                    if (i == 2) {
+                        isComan = true;
+                        ask = 2;
+                        artyom.say("¿Cuál es el sexo de la mascota?", {
+                            onStart: function () {
+                                artyom.dontObey()
+                            },
+                            onEnd: function () {
+                                artyom.obey();
+                            }
+                        });
+                    }
+                    if (i == 3) {
+                        isComan = true;
+                        ask = 2;
+                        artyom.say("¿Cuál es el sexo de la mascota?", {
+                            onStart: function () {
+                                artyom.dontObey()
+                            },
+                            onEnd: function () {
+                                artyom.obey();
+                            }
+                        });
+                    }
+
+                }
+            },
+            {
+                indexes: ['pregunta 3'],
+                action: function (i) {
+                    if (i == 0) {
+                        isComan = true;
+                        ask = 3;
+                        artyom.say("¿Cuál es el edad aproximada de la mascota?", {
+                            onStart: function () {
+                                stopArtyom();
+                            },
+                            onEnd: function () {
+                                startArtyom();
+                            }
+                        });
+
+
+                    }
+
+                }
+            },
+            {
+                indexes: ['pregunta 4'],
+                action: function (i) {
+                    if (i == 0) {
+                        isComan = true;
+                        ask = 4;
+                        artyom.say("¿Cuál es la fecha de rescate?", {
+                            onStart: function () {
+                                stopArtyom();
+                            },
+                            onEnd: function () {
+                                startArtyom();
+                            }
+                        });
+
+
+                    }
+
+                }
+            },
+            {
+                indexes: ['pregunta 5'],
+                action: function (i) {
+                    if (i == 0) {
+                        isComan = true;
+                        ask = 5;
+                        artyom.say("¿Cómo se llama el adoptante?", {
+                            onStart: function () {
+                                stopArtyom();
+                            },
+                            onEnd: function () {
+                                startArtyom();
+                            }
+                        });
+
+
+                    }
+
+                }
+            },
+            {
+                indexes: ['pregunta 6'],
+                action: function (i) {
+                    if (i == 0) {
+                        isComan = true;
+                        ask = 6;
+                        artyom.say("¿Qué vacunas tiene la mascota?", {
+                            onStart: function () {
+                                stopArtyom();
+                            },
+                            onEnd: function () {
+                                startArtyom();
+                            }
+                        });
+
+
+                    }
+
+                }
+            },
+
+
+            {
+                indexes: ['cancelar', 'guardar'],
+                action: function (i) {
+                    if (i == 0) {
+                        window.location.href = "{% url 'home' %}";
+                        artyom.say("Cancelado", {
+                            onStart: function () {
+                                stopArtyom();
+                            },
+                            onEnd: function () {
+                                startArtyom();
+                            }
+                        });
+                    }
+
+                    if (i == 1) {
+                        validar();
+                    }
+
+                }
+            },
+
+            {
+                indexes: ['ir a home'],
+                action: function (i) {
+                    if (i == 0) {
+                        window.location.href = "{% url 'home' %}";
+                        artyom.say("redireccionando", {
+                            onStart: function () {
+                                stopArtyom();
+                            },
+                            onEnd: function () {
+                                startArtyom();
+                            }
+                        });
+                    }
+
+                }
+            },
+            {
+                indexes: ['salir', 'Salir'],
+                action: function () {
+                    artyom.say("Adios");
+                    window.location.href = "{% url 'logout' %}";
+                }
+            },
+
+            {
+                indexes: ['limpiar'],
+                action: function () {
+                    $('#exampleTextarea').val('');
+                }
+            }
+        ]);
+
+        function pregunta1() {
+            ask = 1;
+            artyom.say("¿Cuál es el nombre de la mascota?", {
+                onStart: function () {
+                    stopArtyom();
+                },
+                onEnd: function () {
+                    startArtyom();
+                }
+            });
+        };
+
+        function pregunta2() {
+            ask = 2;
+            artyom.say("¿Cuál es el sexo de la mascota?", {
+                onStart: function () {
+                    stopArtyom();
+                },
+                onEnd: function () {
+                    startArtyom();
+                }
+            });
+        };
+
+        function pregunta3() {
+            ask = 3;
+            artyom.say("¿Cuál es el edad en años aproximada de la mascota?", {
+                onStart: function () {
+                    stopArtyom();
+                },
+                onEnd: function () {
+                    startArtyom();
+                }
+            });
+        };
+
+        function pregunta4() {
+            ask = 4;
+            artyom.say("¿Cuál es la fecha de rescate?", {
+                onStart: function () {
+                    stopArtyom();
+                },
+                onEnd: function () {
+                    startArtyom();
+                }
+            });
+        };
+
+        function pregunta5() {
+            ask = 5;
+            artyom.say("¿Cómo se llama el adoptante", {
+                onStart: function () {
+                    stopArtyom();
+                },
+                onEnd: function () {
+                    startArtyom();
+                }
+            });
+        };
+
+        function pregunta6() {
+            ask = 6;
+            artyom.say("¿Qué vacunas tiene la mascota?", {
+                onStart: function () {
+                    stopArtyom();
+                },
+                onEnd: function () {
+                    startArtyom();
+                }
+            });
+        };
+
+        function validar() {
+
+            var txtNombre = document.getElementById("id_nombre");
+            var txtSexo = document.getElementById("id_sexo");
+            var txtEdad = document.getElementById("id_edad_aproximada");
+            var txtFecha = document.getElementById("id_fecha_rescate");
+            var selectPersona = document.getElementById("id_persona");
+            var chkVacuna0 = document.getElementById("id_vacuna_0");
+            var chkVacuna1 = document.getElementById("id_vacuna_1");
+            var chkVacuna2 = document.getElementById("id_vacuna_2");
+
+            if (txtNombre.value.length == 0) {
+                artyom.say("Por favor diligencia la pregunta 1", {
+                    onStart: function () {
+                        stopArtyom();
+                    },
+                    onEnd: function () {
+                        startArtyom();
+                    }
+                });
+                return 0;
+            }
+            if (txtSexo.value.length == 0) {
+                artyom.say("Por favor diligencia la pregunta 2", {
+                    onStart: function () {
+                        stopArtyom();
+                    },
+                    onEnd: function () {
+                        startArtyom();
+                    }
+                });
+                return 0;
+            }
+            if (txtEdad.value.length == 0) {
+                artyom.say("Por favor diligencia la pregunta 3", {
+                    onStart: function () {
+                        stopArtyom();
+                    },
+                    onEnd: function () {
+                        startArtyom();
+                    }
+                });
+
+                return 0;
+            }
+
+            if (isNaN(txtEdad.value)) {
+                artyom.say("El valor ingresado en la pregunta 3 no es un número, diligénciala nuevamente", {
+                    onStart: function () {
+                        stopArtyom();
+                    },
+                    onEnd: function () {
+                        startArtyom();
+                    }
+                });
+
+                return 0;
+            }
+
+
+            if (txtFecha.value.length == 0) {
+                artyom.say("Por favor diligencia la pregunta 4", {
+                    onStart: function () {
+                        stopArtyom();
+                    },
+                    onEnd: function () {
+                        startArtyom();
+                    }
+                });
+                return 0;
+            }
+
+            if (selectPersona.selectedIndex == 0) {
+                artyom.say("Por favor diligencia la pregunta 5", {
+                    onStart: function () {
+                        stopArtyom();
+                    },
+                    onEnd: function () {
+                        startArtyom();
+                    }
+                });
+                return 0;
+            }
+            if (chkVacuna0.checked == false && chkVacuna1.checked == false && chkVacuna2.checked == false) {
+                artyom.say("Por favor diligencia la pregunta 6", {
+                    onStart: function () {
+                        stopArtyom();
+                    },
+                    onEnd: function () {
+                        startArtyom();
+                    }
+                });
+
+                return 0;
+            }
+
+
+            document.formulario_mascota.submit();
+            artyom.say("Tu registro se guardó  exitosamente", {
+                onStart: function () {
+                    stopArtyom();
+                },
+                onEnd: function () {
+                    startArtyom();
+                }
+            });
+        }
+
+
+    </script>
+
+
+{% endblock %}
+
+
+

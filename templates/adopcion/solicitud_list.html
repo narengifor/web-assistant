@@ -1,0 +1,211 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+
+<table class="table table-bordered">
+	<thead>
+		<tr>
+			<td>No. Solicitud</td>
+			<td>Adoptante</td>
+			<td>No. Mascotas</td>
+			<td>Razones</td>
+			<td>Acciones</td>
+		</tr>
+
+	</thead>
+	<tbody>
+		{% if object_list %}
+		{% for solicitud in object_list %}
+		<tr>
+			<td>{{ solicitud.id }}</td>
+			<td>{{ solicitud.persona.nombre }} {{solicitud.persona.apellidos}}</td>
+			<td>{{ solicitud.numero_mascotas }}</td>
+			<td>{{ solicitud.razones }}</td>
+
+			<td>
+				<a class="btn btn-primary" href="{% url 'adopcion:solicitud_editar' solicitud.id %}">Editar</a>
+				<a class="btn btn-danger" href="{% url 'adopcion:solicitud_eliminar' solicitud.id %}">Eliminar</a>
+			</td>
+		</tr>
+		{% endfor %}
+
+		{% else %}
+		<h1>No hay registros de solicitudes</h1>
+		{% endif %}
+	</tbody>
+</table>
+
+{% endblock%}
+
+{% block extrajs %}
+    <script>
+        window.onload = function () {
+            startArtyom();
+        }
+        // Escribir lo que escucha.
+        artyom.redirectRecognizedTextOutput(function (text, isFinal) {
+            var texto = $('#exampleTextarea');
+            if (isFinal) {
+                texto.val(text);
+            } else {
+                texto.val(text);
+            }
+        });
+
+        //inicializamos la libreria Artyom
+        function startArtyom() {
+            artyom.initialize({
+                lang: "es-ES",
+                continuous: true,// Reconoce 1 solo comando y para de escuchar
+                listen: true, // Iniciar !
+                debug: true, // Muestra un informe en la consola
+                speed: 1 // Habla normalmente
+            });
+        };
+
+        // Stop libreria;
+        function stopArtyom() {
+            artyom.fatality();// Detener cualquier instancia previa
+
+        };
+
+        //El sistema responde
+        artyom.addCommands([
+            {
+                indexes: ['abrir google', 'abrir facebook', 'abrir youtube'],
+                action: function (i) {
+                    if (i == 0) {
+                        artyom.say("Abriendo google");
+                        window.open("https://www.google.com/search?q=");
+                    }
+                    if (i == 1) {
+                        artyom.say("Abriendo facebook");
+                        window.open("http://www.facebook.com", '_blank');
+                    }
+                    if (i == 2) {
+                        artyom.say("Abriendo youtube");
+                        window.open("https://www.youtube.com", '_blank');
+                    }
+                }
+            },
+            {
+                smart: true,
+                indexes: ["buscar *"],
+                action: function (i, wildcard) {
+                    // Speak alterable value
+                    var str = "https://www.google.com/search?q=" + wildcard;
+                    window.open(str);
+                }
+            },
+            {
+                smart: true,
+                indexes: ["editar registro *"],
+                action: function (i, wildcard) {
+                    console.log("entro aqui");
+                    console.log(wildcard);
+                    var p = parseInt(wildcard);
+                    if (!isNaN(p)) {
+                        var dir = 'solicitud/editar/' + p + '/';
+                        console.log(dir);
+                        window.location.href = dir;
+                    } else {
+                        artyom.say("Por favor verifica el número dado para editar", {
+                            onStart: function () {
+                                stopArtyom();
+                            },
+                            onEnd: function () {
+                                startArtyom();
+                            }
+                        });
+                    }
+
+                }
+            },
+            {
+                smart: true,
+                indexes: ["eliminar registro *"],
+                action: function (i, wildcard) {
+                    var e = parseInt(wildcard);
+                    if (!isNaN(e)) {
+                        var dir = 'solicitud/eliminar/' + e + '/';
+                        console.log(dir);
+                        window.location.href = dir;
+                    } else {
+                        artyom.say("Por favor verifica el número de registro dado para eliminar", {
+                            onStart: function () {
+                                stopArtyom();
+                            },
+                            onEnd: function () {
+                                startArtyom();
+                            }
+                        });
+                    }
+
+                }
+            },
+            {
+                indexes: ['subir vista', 'bajar vista'],
+                action: function (i) {
+                    if (i == 0) {
+                        artyom.say("Subiendo");
+                        window.scrollBy(0, -100);
+                    }
+                    if (i == 1) {
+                        artyom.say("Bajando");
+                        window.scrollBy(0, 100);
+                    }
+                }
+            },
+            {
+                indexes: ['registrar mascota', 'registrar solicitud'],
+                action: function (i) {
+                    if (i == 0) {
+                        artyom.say("ok, abriendo formulario de mascotas");
+                        window.location.href = "{% url 'mascota:mascota_crear' %}";
+                    }
+                    if (i == 1) {
+                        artyom.say("Entendido, abriendo formulario de solicitud");
+                        window.location.href = "{% url 'adopcion:solicitud_crear' %}";
+                    }
+                }
+            },
+            {
+                indexes: ['listar mascotas', 'listar solicitudes'],
+                action: function (i) {
+                    if (i == 0) {
+                        artyom.say("listando mascotas");
+                        window.location.href = "{% url 'mascota:mascota_listar' %}";
+                    }
+                    if (i == 1) {
+                        artyom.say("listando solicitudes");
+                        window.location.href = "{% url 'adopcion:solicitud_listar' %}";
+                    }
+                }
+            },
+            {
+                indexes: ['ir a home'],
+                action: function (i) {
+                    if (i == 0) {
+                        artyom.say("redireccionando", {
+                            onStart: function () {
+                                stopArtyom();
+                                window.location.href = "{% url 'home' %}";
+                            },
+                            onEnd: function () {
+                                startArtyom();
+                            }
+                        });
+                    }
+
+                }
+            },
+            {
+                indexes: ['salir', 'Salir'],
+                action: function () {
+                    artyom.say("Adios");
+                    window.location.href = "{% url 'logout' %}";
+                }
+            },
+        ]);
+    </script>
+{% endblock %}

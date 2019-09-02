@@ -1,0 +1,251 @@
+{% load staticfiles %}
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    {% block extrastatic %}
+    {% endblock %}
+
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+
+
+    <script src="{% static 'js/artyom.min.js' %}"></script>
+    <script src="{% static 'js/artyomCommands.js' %}"></script>
+
+    {% block starjs %}
+
+    {% endblock %}
+
+    <title>{% block tittle %}Document {% endblock %}</title>
+</head>
+<body>
+
+<div class="container">
+
+    {% block navbar %}
+        <div class="bs-docs-section clearfix">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="bs-component">
+
+                        <nav class="navbar navbar-default">
+                            <div class="container-fluid">
+                                <div class="navbar-header">
+                                    <a class="navbar-brand" href="{% url 'home' %}">Home</a>
+                                </div>
+                                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                                    <ul class="nav navbar-nav">
+                                        <li class="dropdown">
+                                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                                               aria-expanded="false">Mascotas <span class="caret"></span></a>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li><a href="{% url 'mascota:mascota_crear' %}">Registrar</a></li>
+                                                <li><a href="{% url 'mascota:mascota_listar' %}">Listar</a></li>
+                                            </ul>
+                                        </li>
+                                        <li class="dropdown">
+                                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                                               aria-expanded="false">Adopciones<span class="caret"></span></a>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li><a href="{% url 'adopcion:solicitud_crear' %}">Solicitar</a></li>
+                                                <li><a href="{% url 'adopcion:solicitud_listar' %}">Listar
+                                                    solicitudes</a></li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                    <ul class="nav navbar-nav navbar-right">
+                                        <li class="dropdown">
+                                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                                               aria-expanded="false">Opciones<span class="caret"></span></a>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li><a href="{% url 'logout' %}">Salir</a></li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </nav>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    {% endblock %}
+
+    {% block reconocimiento %}
+
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <div class="form-group">
+                    <h3><label>Estoy diciento...</label></h3>
+                    <textarea class="form-control" id="exampleTextarea" rows="2"> </textarea>
+                </div>
+            </div>
+            <div class="col-md-8 col-md-offset-5">
+                <div class="form-group">
+                    <button class="btn btn-success" onclick="startArtyom();">Iniciar</button>
+                    <button class="btn btn-danger" onclick="stopArtyom();">Parar</button>
+                </div>
+            </div>
+
+        </div>
+    {% endblock %}
+
+
+    {% block content %}
+        <h4>Bloque contenido</h4>
+    {% endblock %}
+
+    {% block footer %}
+    {% endblock %}
+
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+
+{% block extrajs %}
+    <script>
+
+
+        // Escribir lo que escucha.
+        artyom.redirectRecognizedTextOutput(function (text, isFinal) {
+            var texto = $('#exampleTextarea');
+            if (isFinal) {
+                texto.val(text);
+            } else {
+
+            }
+        });
+
+        //inicializamos la libreria Artyom
+        function startArtyom() {
+            artyom.initialize({
+                lang: "es-ES",
+                continuous: true,// Reconoce 1 solo comando y para de escuchar
+                listen: true, // Iniciar !
+                debug: true, // Muestra un informe en la consola
+                speed: 1 // Habla normalmente
+            });
+
+        };
+
+        // Stop libreria;
+        function stopArtyom() {
+            artyom.fatality();// Detener cualquier instancia previa
+        };
+
+        //El sistema responde
+        artyom.addCommands([
+            {
+                indexes: ["Hola"],
+                action: function (i) {
+                    if (i == 0) {
+                        artyom.say("Cordial saludo, ¿Cómo puedo ayudarte?");
+                    }
+                }
+            },
+            {
+                indexes: ['me voy', 'chao'],
+                action: function () {
+                    alert('ok, chau');
+                }
+            },
+            {
+                indexes: ['abrir google', 'abrir facebook', 'abrir youtube'],
+                action: function (i) {
+                    if (i == 0) {
+                        artyom.say("Abriendo google");
+                        window.open("https://www.google.com/search?q=");
+                    }
+                    if (i == 1) {
+                        artyom.say("Abriendo facebook");
+                        window.open("http://www.facebook.com", '_blank');
+                    }
+                    if (i == 2) {
+                        artyom.say("Abriendo youtube");
+                        window.open("https://www.youtube.com", '_blank');
+                    }
+                }
+            },
+            {
+                smart: true,
+                indexes: ["buscar *"],
+                action: function (i, wildcard) {
+                    // Speak alterable value
+                    var str = "https://www.google.com/search?q=" + wildcard;
+                    window.open(str);
+                }
+            },
+            {
+                indexes: ['subir vista', 'bajar vista'],
+                action: function (i) {
+                    if (i == 0) {
+                        artyom.say("Subiendo");
+                        window.scrollBy(0, -100);
+                    }
+                    if (i == 1) {
+                        artyom.say("Bajando");
+                        window.scrollBy(0, 100);
+                    }
+                }
+            }, {
+                indexes: ['registrar mascota', 'registrar solicitud'],
+                action: function (i) {
+                    if (i == 0) {
+                        artyom.say("ok, abriendo formulario de mascotas");
+                        window.location.href = "{% url 'mascota:mascota_crear' %}";
+                        stopArtyom();
+
+                    }
+                    if (i == 1) {
+                        artyom.say("Entendido, abriendo formulario de solicitud");
+                        window.location.href = "{% url 'adopcion:solicitud_crear' %}";
+                    }
+                }
+            },
+            {
+                indexes: ['listar mascotas', 'listar solicitudes'],
+                action: function (i) {
+                    if (i == 0) {
+                        artyom.say("listando mascotas");
+                        window.location.href = "{% url 'mascota:mascota_listar' %}";
+                    }
+                    if (i == 1) {
+                        artyom.say("listando solicitudes");
+                        window.location.href = "{% url 'adopcion:solicitud_listar' %}";
+                    }
+                }
+            },
+            {
+                indexes: ['limpiar'],
+                action: function () {
+                    $('#exampleTextarea').val('');
+                }
+            },
+            {
+                indexes: ['salir', 'Salir'],
+                action: function () {
+                    artyom.say("Adios");
+                    window.location.href = "{% url 'logout' %}";
+                }
+            },
+        ]);
+
+        artyom.when("SPEECH_SYNTHESIS_END", function () {
+            console.log("Termino");
+        });
+
+    </script>
+
+{% endblock %}
+
+</body>
+</html>
